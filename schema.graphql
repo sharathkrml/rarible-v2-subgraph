@@ -1,0 +1,15 @@
+type Match @entity {
+  id: ID!
+  leftHash: String
+  rightHash: String
+  leftMaker: String
+  rightMaker: String
+  newLeftFill: BigInt
+  newRightFill: BigInt
+  " assetLeft "
+  leftAssetClass: String
+  leftAssetdata: String
+  " assetright "
+  rightAssetClass: String
+  rightAssetdata: String
+}
