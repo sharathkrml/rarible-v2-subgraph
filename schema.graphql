@@ -9,7 +9,9 @@ type Match @entity {
   " assetLeft "
   leftAssetClass: String
   leftAssetdata: String
+  leftClass: String
   " assetright "
   rightAssetClass: String
   rightAssetdata: String
+  rightClass: String
 }
