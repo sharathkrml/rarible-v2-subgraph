@@ -7,11 +7,13 @@ type Match @entity {
   newLeftFill: BigInt
   newRightFill: BigInt
   " assetLeft "
-  leftAssetClass: String
+  # leftAssetClass: String
   leftAssetdata: String
   leftClass: String
+  leftAddress: Bytes
+  leftId: BigInt
   " assetright "
-  rightAssetClass: String
+  # rightAssetClass: String
   rightAssetdata: String
   rightClass: String
 }

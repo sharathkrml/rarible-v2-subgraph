@@ -19,15 +19,36 @@ export function handleMatch(event: MatchEvent): void {
   entity.rightMaker = event.params.rightMaker.toHexString();
   entity.newLeftFill = event.params.newLeftFill;
   entity.newRightFill = event.params.newRightFill;
-  entity.leftAssetClass = event.params.leftAsset.assetClass.toHexString();
+  // entity.leftAssetClass = event.params.leftAsset.assetClass.toHexString();
   entity.leftClass = classMap.get(
     event.params.leftAsset.assetClass.toHexString()
   );
+  if (entity.leftClass == "ERC20") {
+    let decoded = ethereum.decode("(address)", event.params.leftAsset.data);
+    if (decoded) {
+      let decodedTuple = decoded.toTuple();
+      entity.leftAddress = decodedTuple[0].toAddress();
+    }
+  } else if (
+    entity.leftClass == "ERC721" ||
+    entity.leftClass == "ERC1155" ||
+    entity.leftClass == null
+  ) {
+    let decoded = ethereum.decode(
+      "(address,uint256)",
+      event.params.leftAsset.data
+    );
+    if (decoded) {
+      let decodedTuple = decoded.toTuple();
+      entity.leftAddress = decodedTuple[0].toAddress();
+      entity.leftId = decodedTuple[1].toBigInt();
+    }
+  }
   entity.leftAssetdata = event.params.leftAsset.data.toHexString();
   entity.rightClass = classMap.get(
     event.params.rightAsset.assetClass.toHexString()
   );
-  entity.rightAssetClass = event.params.rightAsset.assetClass.toHexString();
+  // entity.rightAssetClass = event.params.rightAsset.assetClass.toHexString();
   entity.rightAssetdata = event.params.rightAsset.data.toHexString();
 
   entity.save();
