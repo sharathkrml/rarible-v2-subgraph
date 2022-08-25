@@ -16,4 +16,6 @@ type Match @entity {
   # rightAssetClass: String
   rightAssetdata: String
   rightClass: String
+  rightAddress: Bytes
+  rightId: BigInt
 }
