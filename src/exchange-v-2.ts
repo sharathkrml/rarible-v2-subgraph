@@ -14,8 +14,6 @@ export function handleMatch(event: MatchEvent): void {
   if (!entity) {
     entity = new Match(event.transaction.hash.toHexString());
   }
-  entity.leftHash = event.params.leftHash.toHexString();
-  entity.rightHash = event.params.rightHash.toHexString();
   entity.leftMaker = event.params.leftMaker.toHexString();
   entity.rightMaker = event.params.rightMaker.toHexString();
   entity.newLeftFill = event.params.newLeftFill;
@@ -48,16 +46,6 @@ export function handleMatch(event: MatchEvent): void {
       entity.leftAddress = decodedTuple[0].toAddress();
       entity.leftId = decodedTuple[2].toBigInt();
     }
-    // (id) = abi.decode(data[64:128],(uint256));
-    // if (entity.leftAssetdata!.length > 194) {
-    //   let idString = "0x" + entity.leftAssetdata!.slice(130, 194);
-    //   let idBytes = Bytes.fromHexString(idString);
-    //   let decodedId = ethereum.decode("(uint256)", idBytes);
-    //   if (decodedId) {
-    //     let decodedTuple = decodedId.toTuple();
-    //     entity.leftId = decodedTuple[0].toBigInt();
-    //   }
-    // }
   }
   entity.leftAssetdata = event.params.leftAsset.data.toHexString();
   entity.rightClass = getClass(event.params.rightAsset.assetClass);
@@ -89,16 +77,6 @@ export function handleMatch(event: MatchEvent): void {
       entity.rightAddress = decodedTuple[0].toAddress();
       entity.rightId = decodedTuple[2].toBigInt();
     }
-    // (id) = abi.decode(data[64:128],(uint256));
-    // if (entity.leftAssetdata!.length > 194) {
-    //   let idString = "0x" + entity.leftAssetdata!.slice(130, 194);
-    //   let idBytes = Bytes.fromHexString(idString);
-    //   let decodedId = ethereum.decode("(uint256)", idBytes);
-    //   if (decodedId) {
-    //     let decodedTuple = decodedId.toTuple();
-    //     entity.leftId = decodedTuple[0].toBigInt();
-    //   }
-    // }
   }
   entity.rightAssetdata = event.params.rightAsset.data.toHexString();
 

@@ -1,7 +1,5 @@
 type Match @entity {
   id: ID!
-  leftHash: String
-  rightHash: String
   leftMaker: String
   rightMaker: String
   newLeftFill: BigInt
