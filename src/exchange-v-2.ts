@@ -10,6 +10,7 @@ import {
   getClass,
   decodeAsset,
   SPECIAL,
+  Asset,
 } from "./rarible-helper";
 export function handleMatch(event: MatchEvent): void {
   // let entity = Match.load(event.transaction.hash.toHexString());
@@ -57,22 +58,24 @@ export function handleMatch(event: MatchEvent): void {
 
   if (leftAsset.assetClass == ERC20 || leftAsset.assetClass == ETH) {
     // right is NFT
-    let entity = Transaction.load(
-      event.transaction.hash.toHexString() +
-        "-" +
-        rightAsset.address.toHexString() +
-        "-" +
-        rightAsset.id.toHexString()
-    );
-    if (!entity) {
-      entity = new Transaction(
-        event.transaction.hash.toHexString() +
-          "-" +
-          rightAsset.address.toHexString() +
-          "-" +
-          rightAsset.id.toHexString()
-      );
-    }
+    // let entity = Transaction.load(
+    //   event.transaction.hash.toHexString() +
+    //     "-" +
+    //     rightAsset.address.toHexString() +
+    //     "-" +
+    //     rightAsset.id.toHexString()
+    // );
+    // if (!entity) {
+    //   entity = new Transaction(
+    //     event.transaction.hash.toHexString() +
+    //       "-" +
+    //       rightAsset.address.toHexString() +
+    //       "-" +
+    //       rightAsset.id.toHexString()
+    //   );
+    // }
+    let entity = getOrCreateTransaction(event.transaction.hash, rightAsset);
+
     entity.hash = event.transaction.hash.toHexString();
     entity.nftSide = "RIGHT";
     entity.from = event.params.rightMaker.toHexString();
@@ -86,22 +89,23 @@ export function handleMatch(event: MatchEvent): void {
     entity.save();
   } else {
     // left is NFT
-    let entity = Transaction.load(
-      event.transaction.hash.toHexString() +
-        "-" +
-        leftAsset.address.toHexString() +
-        "-" +
-        leftAsset.id.toHexString()
-    );
-    if (!entity) {
-      entity = new Transaction(
-        event.transaction.hash.toHexString() +
-          "-" +
-          leftAsset.address.toHexString() +
-          "-" +
-          leftAsset.id.toHexString()
-      );
-    }
+    // let entity = Transaction.load(
+    //   event.transaction.hash.toHexString() +
+    //     "-" +
+    //     leftAsset.address.toHexString() +
+    //     "-" +
+    //     leftAsset.id.toHexString()
+    // );
+    // if (!entity) {
+    //   entity = new Transaction(
+    //     event.transaction.hash.toHexString() +
+    //       "-" +
+    //       leftAsset.address.toHexString() +
+    //       "-" +
+    //       leftAsset.id.toHexString()
+    //   );
+    // }
+    let entity = getOrCreateTransaction(event.transaction.hash, leftAsset);
     entity.nftSide = "LEFT";
     entity.hash = event.transaction.hash.toHexString();
     entity.from = event.params.leftMaker.toHexString();
@@ -114,4 +118,24 @@ export function handleMatch(event: MatchEvent): void {
     entity.tokenType = rightAsset.assetClass;
     entity.save();
   }
+}
+
+export function getOrCreateTransaction(hash: Bytes, asset: Asset): Transaction {
+  let entity = Transaction.load(
+    hash.toHexString() +
+      "-" +
+      asset.address.toHexString() +
+      "-" +
+      asset.id.toHexString()
+  );
+  if (!entity) {
+    entity = new Transaction(
+      hash.toHexString() +
+        "-" +
+        asset.address.toHexString() +
+        "-" +
+        asset.id.toHexString()
+    );
+  }
+  return entity;
 }
