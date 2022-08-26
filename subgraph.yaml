@@ -8,7 +8,7 @@ dataSources:
     source:
       address: "0x9757f2d2b135150bbeb65308d4a91804107cd8d6"
       abi: ExchangeV2
-      startBlock: 13575952
+      startBlock: 12617827
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6

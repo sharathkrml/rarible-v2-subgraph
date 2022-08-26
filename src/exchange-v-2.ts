@@ -38,6 +38,7 @@ export function handleMatch(event: MatchEvent): void {
     entity.paymentAmount = event.params.newRightFill;
     entity.nftType = rightAsset.assetClass;
     entity.tokenType = leftAsset.assetClass;
+    entity.blockHeight = event.block.number;
     entity.save();
     airstack.nft.trackNFTSaleTransactions(
       event.transaction.hash.toHexString(),
@@ -63,6 +64,7 @@ export function handleMatch(event: MatchEvent): void {
     entity.paymentAmount = event.params.newLeftFill;
     entity.nftType = leftAsset.assetClass;
     entity.tokenType = rightAsset.assetClass;
+    entity.blockHeight = event.block.number;
     entity.save();
     airstack.nft.trackNFTSaleTransactions(
       event.transaction.hash.toHexString(),

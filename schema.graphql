@@ -11,6 +11,7 @@ type Transaction @entity {
   nftId: BigInt
   paymentToken: String
   paymentAmount: BigInt
+  blockHeight: BigInt
 }
 
 enum AirNetwork {
