@@ -81,6 +81,8 @@ export function handleMatch(event: MatchEvent): void {
     entity.nftId = rightAsset.id;
     entity.paymentToken = leftAsset.address.toHexString();
     entity.paymentAmount = event.params.newRightFill;
+    entity.nftType = rightAsset.assetClass;
+    entity.tokenType = leftAsset.assetClass;
     entity.save();
   } else {
     // left is NFT
@@ -108,6 +110,8 @@ export function handleMatch(event: MatchEvent): void {
     entity.nftId = leftAsset.id;
     entity.paymentToken = rightAsset.address.toHexString();
     entity.paymentAmount = event.params.newLeftFill;
+    entity.nftType = leftAsset.assetClass;
+    entity.tokenType = rightAsset.assetClass;
     entity.save();
   }
 }

@@ -22,6 +22,8 @@ type Transaction @entity {
   id: ID!
   hash: String
   nftSide: String
+  nftType: String
+  tokenType: String
   from: String
   to: String
   nftAddress: String
