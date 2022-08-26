@@ -29,17 +29,24 @@ export function getClass(assetClass: Bytes): string {
 export class Asset {
   address: Address;
   id: BigInt;
-  constructor(address: Address, id: BigInt) {
+  assetClass: string;
+  constructor(address: Address, id: BigInt, assetClass: string) {
     this.address = address;
     this.id = id;
+    this.assetClass = assetClass;
   }
 }
-export function decodeAsset(data: Bytes, type: String): Asset {
+export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
+  let type = getClass(assetClass);
   if (type == ERC20) {
     let decoded = ethereum.decode("(address)", data);
     if (decoded) {
       let decodedTuple = decoded.toTuple();
-      let asset = new Asset(decodedTuple[0].toAddress(), BigInt.fromI32(0));
+      let asset = new Asset(
+        decodedTuple[0].toAddress(),
+        BigInt.fromI32(0),
+        type
+      );
       return asset;
     }
   } else if (type == ERC721 || type == ERC1155) {
@@ -48,7 +55,7 @@ export function decodeAsset(data: Bytes, type: String): Asset {
       let decodedTuple = decoded.toTuple();
       let address = decodedTuple[0].toAddress();
       let id = decodedTuple[1].toBigInt();
-      let asset = new Asset(address, id);
+      let asset = new Asset(address, id, type);
       return asset;
     }
   } else if (type == SPECIAL) {
@@ -57,13 +64,14 @@ export function decodeAsset(data: Bytes, type: String): Asset {
       let decodedTuple = decoded.toTuple();
       let address = decodedTuple[0].toAddress();
       let id = decodedTuple[2].toBigInt();
-      let asset = new Asset(address, id);
+      let asset = new Asset(address, id, type);
       return asset;
     }
   }
   let asset = new Asset(
     Address.fromString("0x0000000000000000000000000000000000000000"),
-    BigInt.fromI32(0)
+    BigInt.fromI32(0),
+    type
   );
   return asset;
 }

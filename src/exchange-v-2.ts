@@ -21,14 +21,20 @@ export function handleMatch(event: MatchEvent): void {
   entity.newLeftFill = event.params.newLeftFill;
   entity.newRightFill = event.params.newRightFill;
   //  Light
-  entity.leftClass = getClass(event.params.leftAsset.assetClass);
-  let asset = decodeAsset(event.params.leftAsset.data, entity.leftClass!);
+  let asset = decodeAsset(
+    event.params.leftAsset.data,
+    event.params.leftAsset.assetClass
+  );
+  entity.leftClass = asset.assetClass;
   entity.leftAddress = asset.address;
   entity.leftId = asset.id;
   entity.leftAssetdata = event.params.leftAsset.data.toHexString();
   //  Right
-  entity.rightClass = getClass(event.params.rightAsset.assetClass);
-  asset = decodeAsset(event.params.rightAsset.data, entity.rightClass!);
+  asset = decodeAsset(
+    event.params.rightAsset.data,
+    event.params.rightAsset.assetClass
+  );
+  entity.rightClass = asset.assetClass;
   entity.rightAddress = asset.address;
   entity.rightId = asset.id;
   entity.rightAssetdata = event.params.rightAsset.data.toHexString();
