@@ -1,19 +1,31 @@
-type Match @entity {
+# type Match @entity {
+#   id: ID!
+#   leftMaker: String
+#   rightMaker: String
+#   newLeftFill: BigInt
+#   newRightFill: BigInt
+#   " assetLeft "
+#   # leftAssetClass: String
+#   leftAssetdata: String
+#   leftClass: String
+#   leftAddress: Bytes
+#   leftId: BigInt
+#   " assetright "
+#   # rightAssetClass: String
+#   rightAssetdata: String
+#   rightClass: String
+#   rightAddress: Bytes
+#   rightId: BigInt
+# }
+type Transaction @entity {
+  " hash-nftAddress-id "
   id: ID!
-  leftMaker: String
-  rightMaker: String
-  newLeftFill: BigInt
-  newRightFill: BigInt
-  " assetLeft "
-  # leftAssetClass: String
-  leftAssetdata: String
-  leftClass: String
-  leftAddress: Bytes
-  leftId: BigInt
-  " assetright "
-  # rightAssetClass: String
-  rightAssetdata: String
-  rightClass: String
-  rightAddress: Bytes
-  rightId: BigInt
+  hash: String
+  nftSide: String
+  from: String
+  to: String
+  nftAddress: String
+  nftId: BigInt
+  paymentToken: String
+  paymentAmount: BigInt
 }
