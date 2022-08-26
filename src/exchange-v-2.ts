@@ -12,34 +12,9 @@ import {
   SPECIAL,
   Asset,
 } from "./rarible-helper";
+import * as airstack from "./modules/airstack";
+
 export function handleMatch(event: MatchEvent): void {
-  // let entity = Match.load(event.transaction.hash.toHexString());
-  // if (!entity) {
-  //   entity = new Match(event.transaction.hash.toHexString());
-  // }
-  // entity.leftMaker = event.params.leftMaker.toHexString();
-  // entity.rightMaker = event.params.rightMaker.toHexString();
-  // entity.newLeftFill = event.params.newLeftFill;
-  // entity.newRightFill = event.params.newRightFill;
-  // //  Light
-  // let asset = decodeAsset(
-  //   event.params.leftAsset.data,
-  //   event.params.leftAsset.assetClass
-  // );
-  // entity.leftClass = asset.assetClass;
-  // entity.leftAddress = asset.address;
-  // entity.leftId = asset.id;
-  // entity.leftAssetdata = event.params.leftAsset.data.toHexString();
-  // //  Right
-  // asset = decodeAsset(
-  //   event.params.rightAsset.data,
-  //   event.params.rightAsset.assetClass
-  // );
-  // entity.rightClass = asset.assetClass;
-  // entity.rightAddress = asset.address;
-  // entity.rightId = asset.id;
-  // entity.rightAssetdata = event.params.rightAsset.data.toHexString();
-  // entity.save();
   let leftAsset = decodeAsset(
     event.params.leftAsset.data,
     event.params.leftAsset.assetClass
@@ -48,32 +23,9 @@ export function handleMatch(event: MatchEvent): void {
     event.params.rightAsset.data,
     event.params.rightAsset.assetClass
   );
-  // let entity = Test.load(event.transaction.hash.toHexString());
-  // if (!entity) {
-  //   entity = new Test(event.transaction.hash.toHexString());
-  // }
-  // entity.leftAddress = leftAsset.address.toHexString();
-  // entity.leftClass = leftAsset.assetClass;
-  // entity.leftId = leftAsset.id;
 
   if (leftAsset.assetClass == ERC20 || leftAsset.assetClass == ETH) {
     // right is NFT
-    // let entity = Transaction.load(
-    //   event.transaction.hash.toHexString() +
-    //     "-" +
-    //     rightAsset.address.toHexString() +
-    //     "-" +
-    //     rightAsset.id.toHexString()
-    // );
-    // if (!entity) {
-    //   entity = new Transaction(
-    //     event.transaction.hash.toHexString() +
-    //       "-" +
-    //       rightAsset.address.toHexString() +
-    //       "-" +
-    //       rightAsset.id.toHexString()
-    //   );
-    // }
     let entity = getOrCreateTransaction(event.transaction.hash, rightAsset);
 
     entity.hash = event.transaction.hash.toHexString();
@@ -87,24 +39,19 @@ export function handleMatch(event: MatchEvent): void {
     entity.nftType = rightAsset.assetClass;
     entity.tokenType = leftAsset.assetClass;
     entity.save();
+    airstack.nft.trackNFTSaleTransactions(
+      event.transaction.hash.toHexString(),
+      [event.params.rightMaker],
+      [event.params.leftMaker],
+      [rightAsset.address],
+      [rightAsset.id],
+      leftAsset.address,
+      event.params.newRightFill,
+      event.block.timestamp,
+      event.block.number
+    );
   } else {
     // left is NFT
-    // let entity = Transaction.load(
-    //   event.transaction.hash.toHexString() +
-    //     "-" +
-    //     leftAsset.address.toHexString() +
-    //     "-" +
-    //     leftAsset.id.toHexString()
-    // );
-    // if (!entity) {
-    //   entity = new Transaction(
-    //     event.transaction.hash.toHexString() +
-    //       "-" +
-    //       leftAsset.address.toHexString() +
-    //       "-" +
-    //       leftAsset.id.toHexString()
-    //   );
-    // }
     let entity = getOrCreateTransaction(event.transaction.hash, leftAsset);
     entity.nftSide = "LEFT";
     entity.hash = event.transaction.hash.toHexString();
@@ -117,6 +64,17 @@ export function handleMatch(event: MatchEvent): void {
     entity.nftType = leftAsset.assetClass;
     entity.tokenType = rightAsset.assetClass;
     entity.save();
+    airstack.nft.trackNFTSaleTransactions(
+      event.transaction.hash.toHexString(),
+      [event.params.leftMaker],
+      [event.params.rightMaker],
+      [leftAsset.address],
+      [leftAsset.id],
+      rightAsset.address,
+      event.params.newLeftFill,
+      event.block.timestamp,
+      event.block.number
+    );
   }
 }
 

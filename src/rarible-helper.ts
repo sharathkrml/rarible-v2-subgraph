@@ -5,6 +5,7 @@ import {
   ethereum,
   TypedMap,
 } from "@graphprotocol/graph-ts";
+import { ZERO_ADDRESS, BIGINT_ZERO } from "./modules/prices/common/constants";
 export const ERC20 = "ERC20";
 export const ETH = "ETH";
 export const ERC721 = "ERC721";
@@ -68,10 +69,6 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
       return asset;
     }
   }
-  let asset = new Asset(
-    Address.fromString("0x0000000000000000000000000000000000000000"),
-    BigInt.fromI32(0),
-    type
-  );
+  let asset = new Asset(ZERO_ADDRESS, BIGINT_ZERO, type);
   return asset;
 }
