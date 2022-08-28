@@ -9,6 +9,7 @@ type Transaction @entity {
   to: String
   nftAddress: String
   nftId: BigInt
+  nftInterface: String
   paymentToken: String
   paymentAmount: BigInt
   blockHeight: BigInt

@@ -6,6 +6,8 @@ import {
   TypedMap,
 } from "@graphprotocol/graph-ts";
 import { ZERO_ADDRESS, BIGINT_ZERO } from "./modules/prices/common/constants";
+import { ERC1155 as ERC1155Metadata } from "../generated/ExchangeV2/ERC1155";
+import { ERC721MetaData } from "../generated/ExchangeV2/ERC721MetaData";
 export const ERC20 = "ERC20";
 export const ETH = "ETH";
 export const ERC721 = "ERC721";
@@ -13,6 +15,7 @@ export const ERC1155 = "ERC1155";
 export const COLLECTION = "COLLECTION";
 export const CRYPTOPUNKS = "CRYPTOPUNKS";
 export const SPECIAL = "SPECIAL";
+
 export const classMap = new TypedMap<string, string>();
 classMap.set("0xaaaebeba", ETH);
 classMap.set("0x8ae85d84", ERC20);
@@ -71,4 +74,22 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
   }
   let asset = new Asset(ZERO_ADDRESS, BIGINT_ZERO, type);
   return asset;
+}
+
+export function getNFTType(nftAddress: Address): string {
+  let erc721contract = ERC721MetaData.bind(nftAddress);
+  let erc1155contract = ERC1155Metadata.bind(nftAddress);
+  let supportsEIP721Identifier = erc721contract.try_supportsInterface(
+    Bytes.fromByteArray(Bytes.fromHexString("0x80ac58cd"))
+  );
+  if (supportsEIP721Identifier.value) {
+    return "ERC721";
+  }
+  let supportsERC1155Identifier = erc1155contract.try_supportsInterface(
+    Bytes.fromByteArray(Bytes.fromHexString("0xd9b67a26"))
+  );
+  if (supportsERC1155Identifier.value) {
+    return "ERC1155";
+  }
+  return "";
 }

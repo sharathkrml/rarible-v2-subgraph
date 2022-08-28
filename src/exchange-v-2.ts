@@ -11,6 +11,7 @@ import {
   decodeAsset,
   SPECIAL,
   Asset,
+  getNFTType,
 } from "./rarible-helper";
 import * as airstack from "./modules/airstack";
 
@@ -37,6 +38,7 @@ export function handleMatch(event: MatchEvent): void {
     entity.paymentToken = leftAsset.address.toHexString();
     entity.paymentAmount = event.params.newRightFill;
     entity.nftType = rightAsset.assetClass;
+    entity.nftInterface = getNFTType(rightAsset.address);
     entity.tokenType = leftAsset.assetClass;
     entity.blockHeight = event.block.number;
     entity.save();
@@ -63,6 +65,7 @@ export function handleMatch(event: MatchEvent): void {
     entity.paymentToken = rightAsset.address.toHexString();
     entity.paymentAmount = event.params.newLeftFill;
     entity.nftType = leftAsset.assetClass;
+    entity.nftInterface = getNFTType(leftAsset.address);
     entity.tokenType = rightAsset.assetClass;
     entity.blockHeight = event.block.number;
     entity.save();
