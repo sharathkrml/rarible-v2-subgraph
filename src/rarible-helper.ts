@@ -82,14 +82,22 @@ export function getNFTType(nftAddress: Address): string {
   let supportsEIP721Identifier = erc721contract.try_supportsInterface(
     Bytes.fromByteArray(Bytes.fromHexString("0x80ac58cd"))
   );
-  if (supportsEIP721Identifier.value) {
-    return "ERC721";
+  if (supportsEIP721Identifier.reverted) {
+    return "";
+  } else {
+    if (supportsEIP721Identifier.value) {
+      return "ERC721";
+    }
   }
   let supportsERC1155Identifier = erc1155contract.try_supportsInterface(
     Bytes.fromByteArray(Bytes.fromHexString("0xd9b67a26"))
   );
-  if (supportsERC1155Identifier.value) {
-    return "ERC1155";
+  if (supportsERC1155Identifier.reverted) {
+    return "";
+  } else {
+    if (supportsERC1155Identifier.value) {
+      return "ERC1155";
+    }
   }
   return "";
 }

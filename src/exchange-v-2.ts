@@ -1,6 +1,12 @@
 import { Match as MatchEvent } from "../generated/ExchangeV2/ExchangeV2";
 import { Transaction } from "../generated/schema";
-import { ByteArray, Bytes, ethereum, TypedMap } from "@graphprotocol/graph-ts";
+import {
+  BigInt,
+  ByteArray,
+  Bytes,
+  ethereum,
+  TypedMap,
+} from "@graphprotocol/graph-ts";
 import {
   classMap,
   ETH,
@@ -13,7 +19,6 @@ import {
   Asset,
   getNFTType,
 } from "./rarible-helper";
-import * as airstack from "./modules/airstack";
 
 export function handleMatch(event: MatchEvent): void {
   let leftAsset = decodeAsset(
@@ -36,23 +41,17 @@ export function handleMatch(event: MatchEvent): void {
     entity.nftAddress = rightAsset.address.toHexString();
     entity.nftId = rightAsset.id;
     entity.paymentToken = leftAsset.address.toHexString();
-    entity.paymentAmount = event.params.newRightFill;
+    // entity.paymentAmount = event.params.newRightFill;
+    entity.paymentAmount = event.params.newRightFill.plus(
+      event.params.newRightFill
+        .times(BigInt.fromI32(250))
+        .div(BigInt.fromI32(10000))
+    );
     entity.nftType = rightAsset.assetClass;
     entity.nftInterface = getNFTType(rightAsset.address);
     entity.tokenType = leftAsset.assetClass;
     entity.blockHeight = event.block.number;
     entity.save();
-    airstack.nft.trackNFTSaleTransactions(
-      event.transaction.hash.toHexString(),
-      [event.params.rightMaker],
-      [event.params.leftMaker],
-      [rightAsset.address],
-      [rightAsset.id],
-      leftAsset.address,
-      event.params.newRightFill,
-      event.block.timestamp,
-      event.block.number
-    );
   } else {
     // left is NFT
     let entity = getOrCreateTransaction(event.transaction.hash, leftAsset);
@@ -63,23 +62,16 @@ export function handleMatch(event: MatchEvent): void {
     entity.nftAddress = leftAsset.address.toHexString();
     entity.nftId = leftAsset.id;
     entity.paymentToken = rightAsset.address.toHexString();
-    entity.paymentAmount = event.params.newLeftFill;
+    entity.paymentAmount = event.params.newLeftFill.plus(
+      event.params.newLeftFill
+        .times(BigInt.fromI32(250))
+        .div(BigInt.fromI32(10000))
+    );
     entity.nftType = leftAsset.assetClass;
     entity.nftInterface = getNFTType(leftAsset.address);
     entity.tokenType = rightAsset.assetClass;
     entity.blockHeight = event.block.number;
     entity.save();
-    airstack.nft.trackNFTSaleTransactions(
-      event.transaction.hash.toHexString(),
-      [event.params.leftMaker],
-      [event.params.rightMaker],
-      [leftAsset.address],
-      [leftAsset.id],
-      rightAsset.address,
-      event.params.newLeftFill,
-      event.block.timestamp,
-      event.block.number
-    );
   }
 }
 
