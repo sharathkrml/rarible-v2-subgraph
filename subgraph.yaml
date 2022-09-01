@@ -8,8 +8,8 @@ dataSources:
     source:
       address: "0x9757f2d2b135150bbeb65308d4a91804107cd8d6"
       abi: ExchangeV2
-      # startBlock: 12617827
-      startBlock: 13653712
+      startBlock: 12617827
+      # startBlock: 13653712
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.6
@@ -25,8 +25,8 @@ dataSources:
           file: ./abis/ERC20.json
         - name: ERC1155
           file: ./abis/ERC1155.json
-      eventHandlers:
-        - event: Match(bytes32,bytes32,address,address,uint256,uint256,(bytes4,bytes),(bytes4,bytes))
-          handler: handleMatch
+      callHandlers:
+        - function: matchOrders((address,((bytes4,bytes),uint256),address,((bytes4,bytes),uint256),uint256,uint256,uint256,bytes4,bytes),bytes,(address,((bytes4,bytes),uint256),address,((bytes4,bytes),uint256),uint256,uint256,uint256,bytes4,bytes),bytes)
+          handler: handleMatchOrders
 
       file: ./src/exchange-v-2.ts

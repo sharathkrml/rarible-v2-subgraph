@@ -8,6 +8,11 @@ import {
 import { ZERO_ADDRESS, BIGINT_ZERO } from "./modules/prices/common/constants";
 import { ERC1155 as ERC1155Metadata } from "../generated/ExchangeV2/ERC1155";
 import { ERC721MetaData } from "../generated/ExchangeV2/ERC721MetaData";
+import {
+  MatchOrdersCallOrderLeftStruct,
+  MatchOrdersCallOrderRightStruct,
+} from "../generated/ExchangeV2/ExchangeV2";
+import { log } from "matchstick-as";
 export const ERC20 = "ERC20";
 export const ETH = "ETH";
 export const ERC721 = "ERC721";
@@ -23,6 +28,66 @@ classMap.set("0x73ad2146", ERC721);
 classMap.set("0x973bb640", ERC1155);
 classMap.set("0xf63c2825", COLLECTION);
 classMap.set("0x3e6b89d4", CRYPTOPUNKS);
+
+export const V1 = "V1";
+export const V2 = "V2";
+
+export const LibOrderData = new TypedMap<string, string>();
+LibOrderData.set("0x4c234266", V1);
+LibOrderData.set("0x23d235ef", V2);
+
+export function LibOrderDataParseLeft(
+  order: MatchOrdersCallOrderLeftStruct
+): void {
+  log.debug("order dataType = {}........", [order.dataType.toHexString()]);
+
+  if (LibOrderData.get(order.dataType.toHexString()) == V1) {
+    let decoded = ethereum.decode(
+      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[]))",
+      order.data
+    );
+    if (decoded != null) {
+      let decodedTuple = decoded.toTuple();
+      log.debug("decoded = {}", [decodedTuple[0].toString()]);
+    }
+  } else if (LibOrderData.get(order.dataType.toHexString()) == V2) {
+    let decoded = ethereum.decode(
+      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[],bool))",
+      order.data
+    );
+    if (decoded != null) {
+      let decodedTuple = decoded.toTuple();
+      log.debug("decoded = {}", [decodedTuple[0].toString()]);
+    }
+  }
+}
+
+export function LibOrderDataParseRight(
+  order: MatchOrdersCallOrderRightStruct
+): void {
+  log.debug("order dataType = {}........", [order.dataType.toHexString()]);
+
+  if (LibOrderData.get(order.dataType.toHexString()) == V1) {
+    let decoded = ethereum.decode(
+      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[]))",
+      order.data
+    );
+    if (decoded != null) {
+      let decodedTuple = decoded.toTuple();
+      log.debug("decoded = {}", [decodedTuple[0].toString()]);
+    }
+  } else if (LibOrderData.get(order.dataType.toHexString()) == V2) {
+    let decoded = ethereum.decode(
+      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[],bool))",
+      order.data
+    );
+    if (decoded != null) {
+      let decodedTuple = decoded.toTuple();
+      log.debug("decoded = {}", [decodedTuple[0].toString()]);
+    }
+  }
+}
+
 export function getClass(assetClass: Bytes): string {
   let res = classMap.get(assetClass.toHexString());
   if (res) {
@@ -44,7 +109,7 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
   let type = getClass(assetClass);
   if (type == ERC20) {
     let decoded = ethereum.decode("(address)", data);
-    if (decoded) {
+    if (decoded != null) {
       let decodedTuple = decoded.toTuple();
       let asset = new Asset(
         decodedTuple[0].toAddress(),
@@ -55,7 +120,7 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
     }
   } else if (type == ERC721 || type == ERC1155) {
     let decoded = ethereum.decode("(address,uint256)", data);
-    if (decoded) {
+    if (decoded != null) {
       let decodedTuple = decoded.toTuple();
       let address = decodedTuple[0].toAddress();
       let id = decodedTuple[1].toBigInt();
@@ -64,7 +129,7 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
     }
   } else if (type == SPECIAL) {
     let decoded = ethereum.decode("(address,uint256,uint256)", data);
-    if (decoded) {
+    if (decoded != null) {
       let decodedTuple = decoded.toTuple();
       let address = decodedTuple[0].toAddress();
       let id = decodedTuple[2].toBigInt();
