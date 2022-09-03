@@ -5,7 +5,6 @@ import {
   ethereum,
   TypedMap,
 } from "@graphprotocol/graph-ts";
-import { ZERO_ADDRESS, BIGINT_ZERO } from "./modules/prices/common/constants";
 import { ERC1155 as ERC1155Metadata } from "../generated/ExchangeV2/ERC1155";
 import { ERC721MetaData } from "../generated/ExchangeV2/ERC721MetaData";
 export const ERC20 = "ERC20";
@@ -15,7 +14,11 @@ export const ERC1155 = "ERC1155";
 export const COLLECTION = "COLLECTION";
 export const CRYPTOPUNKS = "CRYPTOPUNKS";
 export const SPECIAL = "SPECIAL";
+export const BIGINT_ZERO = BigInt.fromI32(0);
 
+export const ZERO_ADDRESS = Address.fromString(
+  "0x0000000000000000000000000000000000000000"
+);
 export const classMap = new TypedMap<string, string>();
 classMap.set("0xaaaebeba", ETH);
 classMap.set("0x8ae85d84", ERC20);
