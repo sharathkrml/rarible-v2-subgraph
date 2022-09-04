@@ -6,26 +6,28 @@ type Transaction @entity {
   leftMaker: Bytes
   leftMakeAssetTypeClass: String
   leftMakeAssetTypeData: String
-  leftMakeAssetValue: String
+  leftMakeAssetValue: BigInt
   leftTaker: Bytes
   leftTakeAssetTypeClass: String
   leftTakeAssetTypeData: String
-  leftTakeAssetValue: String
+  leftTakeAssetValue: BigInt
   " v1 or v2 "
   leftDatatype: String
   leftData: String
   leftDataLength: BigInt
+  leftFee: Boolean
   " right "
   rightMaker: Bytes
   rightMakeAssetTypeClass: String
   rightMakeAssetTypeData: String
-  rightMakeAssetValue: String
+  rightMakeAssetValue: BigInt
   rightTaker: Bytes
   rightTakeAssetTypeClass: String
   rightTakeAssetTypeData: String
-  rightTakeAssetValue: String
+  rightTakeAssetValue: BigInt
   " v1 or v2 "
   rightDatatype: String
   rightData: String
   rightDataLength: BigInt
+  rightFee: Boolean
 }

@@ -18,8 +18,7 @@ import {
   SPECIAL,
   Asset,
   getNFTType,
-  LibOrderDataParseLeft,
-  LibOrderDataParseRight,
+  decodeFee
 } from "./rarible-helper";
 import { log } from "matchstick-as";
 
@@ -31,28 +30,31 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
   tx.leftMaker = orderLeft.maker;
   tx.leftMakeAssetTypeClass = orderLeft.makeAsset.assetType.assetClass.toHexString();
   tx.leftMakeAssetTypeData = orderLeft.makeAsset.assetType.data.toHexString();
-  tx.leftMakeAssetValue = orderLeft.makeAsset.value.toHexString();
+  tx.leftMakeAssetValue = orderLeft.makeAsset.value;
   // LibOrderDataParseLeft(orderLeft);
   // LibOrderDataParseRight(orderRight);
   tx.leftTaker = orderLeft.taker;
   tx.leftTakeAssetTypeClass = orderLeft.takeAsset.assetType.assetClass.toHexString();
   tx.leftTakeAssetTypeData = orderLeft.takeAsset.assetType.data.toHexString();
-  tx.leftTakeAssetValue = orderLeft.takeAsset.value.toHexString();
+  tx.leftTakeAssetValue = orderLeft.takeAsset.value
   tx.leftDatatype = orderLeft.dataType.toHexString();
   tx.leftData = orderLeft.data.toHexString();
   tx.leftDataLength = BigInt.fromI32(orderLeft.data.length);
+  tx.leftFee = decodeFee(orderLeft.data.toHexString())
+
   tx.rightMaker = orderRight.maker;
   tx.rightMakeAssetTypeClass = orderRight.makeAsset.assetType.assetClass.toHexString();
   tx.rightMakeAssetTypeData = orderRight.makeAsset.assetType.data.toHexString();
-  tx.rightMakeAssetValue = orderRight.makeAsset.value.toHexString();
+  tx.rightMakeAssetValue = orderRight.makeAsset.value;
 
   tx.rightTaker = orderRight.taker;
   tx.rightTakeAssetTypeClass = orderRight.takeAsset.assetType.assetClass.toHexString();
   tx.rightTakeAssetTypeData = orderRight.takeAsset.assetType.data.toHexString();
-  tx.rightTakeAssetValue = orderRight.takeAsset.value.toHexString();
+  tx.rightTakeAssetValue = orderRight.takeAsset.value;
   tx.rightDatatype = orderRight.dataType.toHexString();
   tx.rightData = orderRight.data.toHexString();
   tx.rightDataLength = BigInt.fromI32(orderRight.data.length);
+  tx.rightFee = decodeFee(orderRight.data.toHexString())
 
   tx.save();
 }

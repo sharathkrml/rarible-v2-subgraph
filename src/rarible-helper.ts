@@ -5,7 +5,6 @@ import {
   ethereum,
   TypedMap,
 } from "@graphprotocol/graph-ts";
-import { ZERO_ADDRESS, BIGINT_ZERO } from "./modules/prices/common/constants";
 import { ERC1155 as ERC1155Metadata } from "../generated/ExchangeV2/ERC1155";
 import { ERC721MetaData } from "../generated/ExchangeV2/ERC721MetaData";
 import {
@@ -20,6 +19,11 @@ export const ERC1155 = "ERC1155";
 export const COLLECTION = "COLLECTION";
 export const CRYPTOPUNKS = "CRYPTOPUNKS";
 export const SPECIAL = "SPECIAL";
+
+export const ZERO_ADDRESS = Address.fromString(
+  "0x0000000000000000000000000000000000000000"
+);
+export const BIGINT_ZERO = BigInt.fromI32(0);
 
 export const classMap = new TypedMap<string, string>();
 classMap.set("0xaaaebeba", ETH);
@@ -36,56 +40,13 @@ export const LibOrderData = new TypedMap<string, string>();
 LibOrderData.set("0x4c234266", V1);
 LibOrderData.set("0x23d235ef", V2);
 
-export function LibOrderDataParseLeft(
-  order: MatchOrdersCallOrderLeftStruct
-): void {
-  log.debug("order dataType = {}........", [order.dataType.toHexString()]);
+export const FEE_250 = "10000000000000000000000001cf0df2a5a20cd61d68d4489eebbf85b8d39e18a00000000000000000000000000000000000000000000000000000000000000fa"
 
-  if (LibOrderData.get(order.dataType.toHexString()) == V1) {
-    let decoded = ethereum.decode(
-      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[]))",
-      order.data
-    );
-    if (decoded != null) {
-      let decodedTuple = decoded.toTuple();
-      log.debug("decoded = {}", [decodedTuple[0].toString()]);
-    }
-  } else if (LibOrderData.get(order.dataType.toHexString()) == V2) {
-    let decoded = ethereum.decode(
-      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[],bool))",
-      order.data
-    );
-    if (decoded != null) {
-      let decodedTuple = decoded.toTuple();
-      log.debug("decoded = {}", [decodedTuple[0].toString()]);
-    }
+export function decodeFee(orderData:string):boolean{
+  if(orderData.endsWith(FEE_250)){
+    return true
   }
-}
-
-export function LibOrderDataParseRight(
-  order: MatchOrdersCallOrderRightStruct
-): void {
-  log.debug("order dataType = {}........", [order.dataType.toHexString()]);
-
-  if (LibOrderData.get(order.dataType.toHexString()) == V1) {
-    let decoded = ethereum.decode(
-      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[]))",
-      order.data
-    );
-    if (decoded != null) {
-      let decodedTuple = decoded.toTuple();
-      log.debug("decoded = {}", [decodedTuple[0].toString()]);
-    }
-  } else if (LibOrderData.get(order.dataType.toHexString()) == V2) {
-    let decoded = ethereum.decode(
-      "(tuple(tuple(address,uint96)[],tuple(address,uint96)[],bool))",
-      order.data
-    );
-    if (decoded != null) {
-      let decodedTuple = decoded.toTuple();
-      log.debug("decoded = {}", [decodedTuple[0].toString()]);
-    }
-  }
+  return false
 }
 
 export function getClass(assetClass: Bytes): string {
