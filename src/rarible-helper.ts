@@ -14,11 +14,12 @@ export const ERC1155 = "ERC1155";
 export const COLLECTION = "COLLECTION";
 export const CRYPTOPUNKS = "CRYPTOPUNKS";
 export const SPECIAL = "SPECIAL";
-export const BIGINT_ZERO = BigInt.fromI32(0);
 
 export const ZERO_ADDRESS = Address.fromString(
   "0x0000000000000000000000000000000000000000"
 );
+export const BIGINT_ZERO = BigInt.fromI32(0);
+
 export const classMap = new TypedMap<string, string>();
 classMap.set("0xaaaebeba", ETH);
 classMap.set("0x8ae85d84", ERC20);
@@ -47,7 +48,7 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
   let type = getClass(assetClass);
   if (type == ERC20) {
     let decoded = ethereum.decode("(address)", data);
-    if (decoded) {
+    if (decoded != null) {
       let decodedTuple = decoded.toTuple();
       let asset = new Asset(
         decodedTuple[0].toAddress(),
@@ -58,7 +59,7 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
     }
   } else if (type == ERC721 || type == ERC1155) {
     let decoded = ethereum.decode("(address,uint256)", data);
-    if (decoded) {
+    if (decoded != null) {
       let decodedTuple = decoded.toTuple();
       let address = decodedTuple[0].toAddress();
       let id = decodedTuple[1].toBigInt();
@@ -67,7 +68,7 @@ export function decodeAsset(data: Bytes, assetClass: Bytes): Asset {
     }
   } else if (type == SPECIAL) {
     let decoded = ethereum.decode("(address,uint256,uint256)", data);
-    if (decoded) {
+    if (decoded != null) {
       let decodedTuple = decoded.toTuple();
       let address = decodedTuple[0].toAddress();
       let id = decodedTuple[2].toBigInt();

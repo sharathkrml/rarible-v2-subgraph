@@ -1,16 +1,33 @@
 type Transaction @entity {
   " hash-nftAddress-id "
   id: ID!
-  hash: String
-  nftSide: String
-  nftType: String
-  tokenType: String
-  from: String
-  to: String
-  nftAddress: String
-  nftId: BigInt
-  nftInterface: String
-  paymentToken: String
-  paymentAmount: BigInt
-  blockHeight: BigInt
+  from: Bytes
+  " left "
+  leftMaker: Bytes
+  leftMakeAssetTypeClass: String
+  leftMakeAssetTypeData: String
+  leftMakeAssetValue: BigInt
+  leftTaker: Bytes
+  leftTakeAssetTypeClass: String
+  leftTakeAssetTypeData: String
+  leftTakeAssetValue: BigInt
+  " v1 or v2 "
+  leftDatatype: String
+  leftData: String
+  leftDataLength: BigInt
+  leftFee: Boolean
+  " right "
+  rightMaker: Bytes
+  rightMakeAssetTypeClass: String
+  rightMakeAssetTypeData: String
+  rightMakeAssetValue: BigInt
+  rightTaker: Bytes
+  rightTakeAssetTypeClass: String
+  rightTakeAssetTypeData: String
+  rightTakeAssetValue: BigInt
+  " v1 or v2 "
+  rightDatatype: String
+  rightData: String
+  rightDataLength: BigInt
+  rightFee: Boolean
 }
