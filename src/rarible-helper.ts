@@ -27,6 +27,16 @@ classMap.set("0x73ad2146", ERC721);
 classMap.set("0x973bb640", ERC1155);
 classMap.set("0xf63c2825", COLLECTION);
 classMap.set("0x3e6b89d4", CRYPTOPUNKS);
+
+export const FEE_250 = "10000000000000000000000001cf0df2a5a20cd61d68d4489eebbf85b8d39e18a00000000000000000000000000000000000000000000000000000000000000fa"
+
+export function decodeFee(orderData:string):boolean{
+  if(orderData.endsWith(FEE_250)){
+    return true
+  }
+  return false
+}
+
 export function getClass(assetClass: Bytes): string {
   let res = classMap.get(assetClass.toHexString());
   if (res) {
