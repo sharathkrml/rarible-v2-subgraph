@@ -19,11 +19,9 @@ type Transaction @entity {
   " Fee related data "
   nftData: String
   nftDataLength: BigInt
-  nftNormalFee: Boolean
 
   paymentData:String
   paymentDataLength:BigInt
-  paymentNormalFee: Boolean
-  originFeeLength: BigInt
   blockHeight:BigInt
+  exchange:String
 }

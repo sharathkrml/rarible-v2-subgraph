@@ -8,8 +8,8 @@ dataSources:
     source:
       address: "0x9757f2d2b135150bbeb65308d4a91804107cd8d6"
       abi: ExchangeV2
-      startBlock: 12617827
-      # startBlock: 12658813 #decode fail case
+      # startBlock: 12617827
+      startBlock: 12658813 #decode fail case
       # startBlock: 13653712
     mapping:
       kind: ethereum/events

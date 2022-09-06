@@ -32,14 +32,13 @@ classMap.set("0x3e6b89d4", CRYPTOPUNKS);
 export const V1 = "0x4c234266";
 export const V2 = "0x23d235ef";
 
-export const FEE_250 =
-  "10000000000000000000000001cf0df2a5a20cd61d68d4489eebbf85b8d39e18a00000000000000000000000000000000000000000000000000000000000000fa";
-
-export function normalFee(orderData: string): boolean {
-  if (orderData.endsWith(FEE_250)) {
-    return true;
+export function getExchange(dataType: Bytes): string {
+  if (dataType.toHexString() == V1) {
+    return "V1";
+  } else if (dataType.toHexString() == V2) {
+    return "V2";
   }
-  return false;
+  return "";
 }
 
 export function getClass(assetClass: Bytes): string {
@@ -121,10 +120,14 @@ export function getNFTType(nftAddress: Address): string {
 }
 
 export function decodeOriginFees(exchangeType: Bytes, data: Bytes): BigInt {
+  let originFee = BIGINT_ZERO;
   if (exchangeType.toHexString() == V1) {
     let dataString = data.toHexString();
     let cleanedData = dataString.slice(2);
     let payoutLengthStartingIndex = 128;
+    if (cleanedData.length > 384) {
+      payoutLengthStartingIndex = 192;
+    }
     let payoutLengthBytes = Bytes.fromHexString(
       "0x" +
         cleanedData.slice(
@@ -135,15 +138,20 @@ export function decodeOriginFees(exchangeType: Bytes, data: Bytes): BigInt {
     let decoded = ethereum.decode("(uint256)", payoutLengthBytes)!.toTuple();
     let payoutLength = decoded[0].toBigInt();
 
-    let originFeeStartIndex =
+    let originFeeLengthStartIndex =
       payoutLength.toI32() * 128 + (payoutLengthStartingIndex + 64);
-    let originFeeLengthBytes = Bytes.fromHexString(
-      "0x" + cleanedData.slice(originFeeStartIndex, originFeeStartIndex + 64)
-    );
-    decoded = ethereum.decode("(uint256)", originFeeLengthBytes)!.toTuple();
-    let originFeeLength = decoded[0].toBigInt();
-    return originFeeLength;
-
+    for (
+      let i = originFeeLengthStartIndex + 64;
+      i < cleanedData.length;
+      i += 128
+    ) {
+      let fee = "0x" + cleanedData.slice(i + 64, i + 128);
+      decoded = ethereum
+        .decode("(uint256)", Bytes.fromHexString(fee))!
+        .toTuple();
+      let amt = decoded[0].toBigInt();
+      originFee = originFee.plus(amt);
+    }
   }
-  return BIGINT_ZERO;
+  return originFee;
 }

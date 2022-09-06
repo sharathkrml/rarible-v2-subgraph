@@ -18,7 +18,7 @@ import {
   SPECIAL,
   Asset,
   getNFTType,
-  normalFee,
+  getExchange,
   decodeOriginFees,
 } from "./rarible-helper";
 import { log } from "matchstick-as";
@@ -58,10 +58,9 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.nftDataLength = BigInt.fromI32(orderRight.data.toHexString().length);
     tx.paymentData = orderLeft.data.toHexString();
     tx.paymentDataLength = BigInt.fromI32(orderLeft.data.toHexString().length);
-    // tx.originFeeLength = decodeOriginFees(orderRight.dataType, orderRight.data);
-      tx.blockHeight = call.block.number
-    tx.nftNormalFee = normalFee(orderRight.data.toHexString());
-    tx.paymentNormalFee = normalFee(orderLeft.data.toHexString());
+    tx.originFee = decodeOriginFees(orderRight.dataType, orderRight.data);
+    tx.blockHeight = call.block.number
+    tx.exchange = getExchange(orderLeft.dataType)
     tx.save();
   } else {
     let tx = getOrCreateTransaction(
@@ -85,9 +84,9 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.nftDataLength = BigInt.fromI32(orderLeft.data.toHexString().length);
     tx.paymentData = orderRight.data.toHexString();
     tx.paymentDataLength = BigInt.fromI32(orderRight.data.toHexString().length);
-    tx.nftNormalFee = normalFee(orderLeft.data.toHexString());
-    tx.paymentNormalFee = normalFee(orderRight.data.toHexString());
-    // tx.originFeeLength = decodeOriginFees(orderRight.dataType, orderRight.data);
+    tx.exchange = getExchange(orderRight.dataType)
+
+    tx.originFee = decodeOriginFees(orderRight.dataType, orderRight.data);
     tx.blockHeight = call.block.number
 
     tx.save();
