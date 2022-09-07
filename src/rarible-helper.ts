@@ -121,6 +121,35 @@ export function getNFTType(nftAddress: Address): string {
 
 export function getOriginFees(exchangeType: Bytes, data: Bytes): BigInt {
   if (exchangeType.toHexString() == V1) {
+    if (
+      data
+        .toHexString()
+        .startsWith(
+          "0x000000000000000000000000000000000000000000000000000000000000004"
+        )
+    ) {
+      data = Bytes.fromHexString(
+        "0x0000000000000000000000000000000000000000000000000000000000000020" +
+          data.toHexString().slice(2)
+      );
+      log.error("weird case {}", [data.toHexString()]);
+      let decoded = ethereum.decode(
+        "((address,uint96)[],(address,uint96)[])",
+        data
+      );
+      if (!decoded) {
+        log.error("{} not decoded", [data.toHexString()]);
+      } else {
+        let dataV1 = decoded.toTuple();
+        let originFeeArray = dataV1[1].toArray();
+        let originFee = BIGINT_ZERO;
+        for (let i = 0; i < originFeeArray.length; i++) {
+          let originFeeItem = originFeeArray[i].toTuple();
+          originFee = originFee.plus(originFeeItem[1].toBigInt());
+        }
+        return originFee;
+      }
+    }
     let decoded = ethereum.decode(
       "((address,uint96)[],(address,uint96)[])",
       data
@@ -158,4 +187,13 @@ export function getOriginFees(exchangeType: Bytes, data: Bytes): BigInt {
   }
   log.error("Not V1/V2 data={}", [data.toHexString()]);
   return BIGINT_ZERO;
+}
+export function calculatedTotal(
+  amt: BigInt,
+  exchangeType: Bytes,
+  data: Bytes
+): BigInt {
+  let originFees = getOriginFees(exchangeType, data);
+  let calculatedFees = amt.times(originFees).div(BigInt.fromI32(10000));
+  return amt.plus(calculatedFees);
 }

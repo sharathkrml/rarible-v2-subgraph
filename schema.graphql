@@ -9,19 +9,20 @@ type Transaction @entity {
   nftId: BigInt
   paymentTokenAddress: Bytes
   paymentAmount: BigInt
-  " Values related to amt " 
-  nftValue:BigInt
-  nftTakeValue:BigInt
-  paymentValue:BigInt
-  paymentTakeValue:BigInt
-  originFee:BigInt
+  " Values related to amt "
+  nftValue: BigInt
+  nftTakeValue: BigInt
+  paymentValue: BigInt
+  paymentTakeValue: BigInt
+  originFee: BigInt
 
   " Fee related data "
   nftData: String
   nftDataLength: BigInt
 
-  paymentData:String
-  paymentDataLength:BigInt
-  blockHeight:BigInt
-  exchange:String
+  paymentData: String
+  paymentDataLength: BigInt
+  blockHeight: BigInt
+  exchange: String
+  total: BigInt
 }

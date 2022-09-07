@@ -20,6 +20,7 @@ import {
   getNFTType,
   getExchange,
   getOriginFees,
+  calculatedTotal,
 } from "./rarible-helper";
 import { log } from "matchstick-as";
 
@@ -59,6 +60,11 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.paymentData = orderLeft.data.toHexString();
     tx.paymentDataLength = BigInt.fromI32(orderLeft.data.toHexString().length);
     tx.originFee = getOriginFees(orderLeft.dataType, orderLeft.data);
+    tx.total = calculatedTotal(
+      orderLeft.makeAsset.value,
+      orderLeft.dataType,
+      orderLeft.data
+    );
     tx.blockHeight = call.block.number;
     tx.exchange = getExchange(orderLeft.dataType);
     tx.save();
@@ -87,6 +93,11 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.exchange = getExchange(orderRight.dataType);
 
     tx.originFee = getOriginFees(orderRight.dataType, orderRight.data);
+    tx.total = calculatedTotal(
+      orderRight.makeAsset.value,
+      orderRight.dataType,
+      orderRight.data
+    );
     tx.blockHeight = call.block.number;
 
     tx.save();
