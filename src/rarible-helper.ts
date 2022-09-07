@@ -119,39 +119,43 @@ export function getNFTType(nftAddress: Address): string {
   return "";
 }
 
-export function decodeOriginFees(exchangeType: Bytes, data: Bytes): BigInt {
-  let originFee = BIGINT_ZERO;
+export function getOriginFees(exchangeType: Bytes, data: Bytes): BigInt {
   if (exchangeType.toHexString() == V1) {
-    let dataString = data.toHexString();
-    let cleanedData = dataString.slice(2);
-    let payoutLengthStartingIndex = 128;
-    if (cleanedData.length > 384) {
-      payoutLengthStartingIndex = 192;
-    }
-    let payoutLengthBytes = Bytes.fromHexString(
-      "0x" +
-        cleanedData.slice(
-          payoutLengthStartingIndex,
-          payoutLengthStartingIndex + 64
-        )
+    let decoded = ethereum.decode(
+      "((address,uint96)[],(address,uint96)[])",
+      data
     );
-    let decoded = ethereum.decode("(uint256)", payoutLengthBytes)!.toTuple();
-    let payoutLength = decoded[0].toBigInt();
+    if (!decoded) {
+      log.error("{} not decoded", [data.toHexString()]);
+    } else {
+      let dataV1 = decoded.toTuple();
+      let originFeeArray = dataV1[1].toArray();
+      let originFee = BIGINT_ZERO;
+      for (let i = 0; i < originFeeArray.length; i++) {
+        let originFeeItem = originFeeArray[i].toTuple();
+        originFee = originFee.plus(originFeeItem[1].toBigInt());
+      }
+      return originFee;
+    }
+  } else if (exchangeType.toHexString() == V2) {
+    let decoded = ethereum.decode(
+      "((address,uint96)[],(address,uint96)[],bool)",
+      data
+    );
 
-    let originFeeLengthStartIndex =
-      payoutLength.toI32() * 128 + (payoutLengthStartingIndex + 64);
-    for (
-      let i = originFeeLengthStartIndex + 64;
-      i < cleanedData.length;
-      i += 128
-    ) {
-      let fee = "0x" + cleanedData.slice(i + 64, i + 128);
-      decoded = ethereum
-        .decode("(uint256)", Bytes.fromHexString(fee))!
-        .toTuple();
-      let amt = decoded[0].toBigInt();
-      originFee = originFee.plus(amt);
+    if (!decoded) {
+      log.error("{} not decoded", [data.toHexString()]);
+    } else {
+      let dataV2 = decoded.toTuple();
+      let originFeeArray = dataV2[1].toArray();
+      let originFee = BIGINT_ZERO;
+      for (let i = 0; i < originFeeArray.length; i++) {
+        let originFeeItem = originFeeArray[i].toTuple();
+        originFee = originFee.plus(originFeeItem[1].toBigInt());
+      }
+      return originFee;
     }
   }
-  return originFee;
+  log.error("Not V1/V2 data={}", [data.toHexString()]);
+  return BIGINT_ZERO;
 }
