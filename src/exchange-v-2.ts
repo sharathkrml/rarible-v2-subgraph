@@ -1,10 +1,15 @@
-import { MatchOrdersCall } from "../generated/ExchangeV2/ExchangeV2";
+import {
+  ExchangeV2,
+  MatchOrdersCall,
+} from "../generated/ExchangeV2/ExchangeV2";
 import { Transaction } from "../generated/schema";
 import {
+  Address,
   BigInt,
   ByteArray,
   Bytes,
   ethereum,
+  log,
   TypedMap,
 } from "@graphprotocol/graph-ts";
 import {
@@ -22,9 +27,11 @@ import {
   getOriginFees,
   calculatedTotal,
 } from "./rarible-helper";
-import { log } from "matchstick-as";
 
 export function handleMatchOrders(call: MatchOrdersCall): void {
+  let exchangeContract = ExchangeV2.bind(
+    Address.fromString("0x9757f2d2b135150bbeb65308d4a91804107cd8d6")
+  );
   let orderLeft = call.inputs.orderLeft;
   let orderRight = call.inputs.orderRight;
   let leftAssetType = getClass(orderLeft.makeAsset.assetType.assetClass);
@@ -60,6 +67,13 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.paymentData = orderLeft.data.toHexString();
     tx.paymentDataLength = BigInt.fromI32(orderLeft.data.toHexString().length);
     tx.originFee = getOriginFees(orderLeft.dataType, orderLeft.data);
+
+    let protocolFees = exchangeContract.try_protocolFee();
+    if (protocolFees.reverted) {
+      log.error("damn!! reverted", []);
+    } else {
+      tx.protocolFees = protocolFees.value;
+    }
     tx.total = calculatedTotal(
       orderLeft.makeAsset.value,
       orderLeft.dataType,
@@ -93,6 +107,13 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.exchange = getExchange(orderRight.dataType);
 
     tx.originFee = getOriginFees(orderRight.dataType, orderRight.data);
+
+    let protocolFees = exchangeContract.try_protocolFee();
+    if (protocolFees.reverted) {
+      log.error("damn!! reverted", []);
+    } else {
+      tx.protocolFees = protocolFees.value;
+    }
     tx.total = calculatedTotal(
       orderRight.makeAsset.value,
       orderRight.dataType,

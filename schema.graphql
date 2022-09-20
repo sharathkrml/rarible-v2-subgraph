@@ -25,4 +25,5 @@ type Transaction @entity {
   blockHeight: BigInt
   exchange: String
   total: BigInt
+  protocolFees: BigInt
 }
