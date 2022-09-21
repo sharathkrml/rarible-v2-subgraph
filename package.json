@@ -5,6 +5,7 @@
     "codegen": "graph codegen",
     "build": "graph build",
     "cb": "graph codegen && graph build",
+    "cbd": "yarn cb && yarn deploy",
     "deploy": "graph deploy --node https://api.thegraph.com/deploy/ sharathkrml/rarible-v2",
     "create-local": "graph create --node http://localhost:8020/ sharathkrml/rarible-v2",
     "remove-local": "graph remove --node http://localhost:8020/ sharathkrml/rarible-v2",

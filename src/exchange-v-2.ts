@@ -34,6 +34,7 @@ import {
   getOriginFees,
   calculatedTotal,
 } from "./rarible-helper";
+import { ERC721MetaData } from "../generated/ExchangeV2/ERC721MetaData";
 
 export function handleMatchOrders(call: MatchOrdersCall): void {
   let orderLeft = call.inputs.orderLeft;
@@ -156,9 +157,20 @@ export function handleDirectPurchase(call: DirectPurchaseCall): void {
   tx.nftAddress = decodedNFT.address;
   tx.nftId = decodedNFT.id;
   tx.from = direct.sellOrderMaker;
-  tx.to = call.from; ///Todo
+  let erc721contract = ERC721MetaData.bind(decodedNFT.address);
+  let ownerOf = erc721contract.try_ownerOf(decodedNFT.id);
+  if (!ownerOf.reverted) {
+    tx.to = ownerOf.value;
+  } else {
+    tx.to = call.from;
+  }
   tx.paymentTokenAddress = direct.paymentToken;
   tx.originFee = getOriginFees(direct.sellOrderDataType, direct.sellOrderData);
+  tx.total = calculatedTotal(
+    direct.sellOrderPaymentAmount,
+    direct.sellOrderDataType,
+    direct.sellOrderData
+  );
   tx.save();
 }
 
