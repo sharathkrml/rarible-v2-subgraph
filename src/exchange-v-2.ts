@@ -1,8 +1,15 @@
 import {
+  DirectAcceptBidCall,
+  DirectPurchaseCall,
   ExchangeV2,
   MatchOrdersCall,
 } from "../generated/ExchangeV2/ExchangeV2";
-import { Transaction } from "../generated/schema";
+import {
+  DirectPurchase,
+  DirectTransaction,
+  Transaction,
+  DirectAcceptBid,
+} from "../generated/schema";
 import {
   Address,
   BigInt,
@@ -29,9 +36,6 @@ import {
 } from "./rarible-helper";
 
 export function handleMatchOrders(call: MatchOrdersCall): void {
-  let exchangeContract = ExchangeV2.bind(
-    Address.fromString("0x9757f2d2b135150bbeb65308d4a91804107cd8d6")
-  );
   let orderLeft = call.inputs.orderLeft;
   let orderRight = call.inputs.orderRight;
   let leftAssetType = getClass(orderLeft.makeAsset.assetType.assetClass);
@@ -68,12 +72,6 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.paymentDataLength = BigInt.fromI32(orderLeft.data.toHexString().length);
     tx.originFee = getOriginFees(orderLeft.dataType, orderLeft.data);
 
-    let protocolFees = exchangeContract.try_protocolFee();
-    if (protocolFees.reverted) {
-      log.error("damn!! reverted", []);
-    } else {
-      tx.protocolFees = protocolFees.value;
-    }
     tx.total = calculatedTotal(
       orderLeft.makeAsset.value,
       orderLeft.dataType,
@@ -108,12 +106,6 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
 
     tx.originFee = getOriginFees(orderRight.dataType, orderRight.data);
 
-    let protocolFees = exchangeContract.try_protocolFee();
-    if (protocolFees.reverted) {
-      log.error("damn!! reverted", []);
-    } else {
-      tx.protocolFees = protocolFees.value;
-    }
     tx.total = calculatedTotal(
       orderRight.makeAsset.value,
       orderRight.dataType,
@@ -123,6 +115,51 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
 
     tx.save();
   }
+}
+
+export function handleDirectPurchase(call: DirectPurchaseCall): void {
+  let entity = DirectPurchase.load(call.transaction.hash.toHexString());
+  if (!entity) {
+    entity = new DirectPurchase(call.transaction.hash.toHexString());
+  }
+  entity.blockNumber = call.block.number;
+
+  let direct = call.inputs.direct;
+  let nftClass = getClass(direct.nftAssetClass);
+  let decodedNFT = decodeAsset(direct.nftData, nftClass);
+  entity.nftAddress = decodedNFT.address;
+  entity.nftId = decodedNFT.id;
+  entity.blockNumber = call.block.number;
+  entity.sellOrderMaker = direct.sellOrderMaker;
+  entity.sellOrderNftAmount = direct.sellOrderNftAmount;
+  entity.nftAssetClass = direct.nftAssetClass;
+  entity.nftData = direct.nftData;
+  entity.sellOrderPaymentAmount = direct.sellOrderPaymentAmount;
+  entity.paymentToken = direct.paymentToken;
+  entity.sellOrderSalt = direct.sellOrderSalt;
+  entity.sellOrderStart = direct.sellOrderStart;
+  entity.sellOrderEnd = direct.sellOrderEnd;
+  entity.sellOrderDataType = direct.sellOrderDataType;
+  entity.sellOrderData = direct.sellOrderData;
+  entity.sellOrderSignature = direct.sellOrderSignature;
+  entity.buyOrderPaymentAmount = direct.buyOrderPaymentAmount;
+  entity.buyOrderNftAmount = direct.buyOrderNftAmount;
+  entity.buyOrderData = direct.buyOrderData;
+  entity.save();
+
+  let tx = getOrCreateDirectTransaction(
+    call.transaction.hash,
+    decodedNFT.address,
+    decodedNFT.id
+  );
+  tx.hash = call.transaction.hash.toHexString();
+  tx.nftAddress = decodedNFT.address;
+  tx.nftId = decodedNFT.id;
+  tx.from = direct.sellOrderMaker;
+  tx.to = call.from; ///Todo
+  tx.paymentTokenAddress = direct.paymentToken;
+  tx.originFee = getOriginFees(direct.sellOrderDataType, direct.sellOrderData);
+  tx.save();
 }
 
 export function getOrCreateTransaction(
@@ -147,4 +184,36 @@ export function getOrCreateTransaction(
     );
   }
   return entity;
+}
+export function getOrCreateDirectTransaction(
+  hash: Bytes,
+  nftAddress: Bytes,
+  nftId: BigInt
+): DirectTransaction {
+  let entity = DirectTransaction.load(
+    hash.toHexString() +
+      "-" +
+      nftAddress.toHexString() +
+      "-" +
+      nftId.toHexString()
+  );
+  if (!entity) {
+    entity = new DirectTransaction(
+      hash.toHexString() +
+        "-" +
+        nftAddress.toHexString() +
+        "-" +
+        nftId.toHexString()
+    );
+  }
+  return entity;
+}
+
+export function handleDirectAcceptBid(call: DirectAcceptBidCall): void {
+  let entity = DirectAcceptBid.load(call.transaction.hash.toHexString());
+  if (!entity) {
+    entity = new DirectAcceptBid(call.transaction.hash.toHexString());
+  }
+  entity.blockNumber = call.block.number;
+  entity.save();
 }

@@ -25,5 +25,61 @@ type Transaction @entity {
   blockHeight: BigInt
   exchange: String
   total: BigInt
-  protocolFees: BigInt
+  # protocolFees: BigInt
+}
+type DirectTransaction @entity {
+  " hash-nftAddress-id "
+  id: ID!
+  nftSide: String
+  hash: String
+  from: Bytes
+  to: Bytes
+  nftAddress: Bytes
+  nftId: BigInt
+  paymentTokenAddress: Bytes
+  paymentAmount: BigInt
+  " Values related to amt "
+  nftValue: BigInt
+  nftTakeValue: BigInt
+  paymentValue: BigInt
+  paymentTakeValue: BigInt
+  originFee: BigInt
+
+  " Fee related data "
+  nftData: String
+  nftDataLength: BigInt
+
+  paymentData: String
+  paymentDataLength: BigInt
+  blockHeight: BigInt
+  exchange: String
+  total: BigInt
+  # protocolFees: BigInt
+}
+
+type DirectPurchase @entity {
+  id: ID!
+  blockNumber: BigInt
+  sellOrderMaker: Bytes
+  sellOrderNftAmount: BigInt
+  nftAssetClass: Bytes
+  nftData: Bytes
+  sellOrderPaymentAmount: BigInt
+  paymentToken: Bytes
+  sellOrderSalt: BigInt
+  sellOrderStart: BigInt
+  sellOrderEnd: BigInt
+  sellOrderDataType: Bytes
+  sellOrderData: Bytes
+  sellOrderSignature: Bytes
+  buyOrderPaymentAmount: BigInt
+  buyOrderNftAmount: BigInt
+  buyOrderData: Bytes
+
+  nftId: BigInt
+  nftAddress: Bytes
+}
+type DirectAcceptBid @entity {
+  id: ID!
+  blockNumber: BigInt
 }

@@ -31,6 +31,8 @@ classMap.set("0x3e6b89d4", CRYPTOPUNKS);
 
 export const V1 = "0x4c234266";
 export const V2 = "0x23d235ef";
+export const V3_SELL = "0x2fa3cfd3";
+export const V3_BUY = "0x1b18cdf6";
 
 export function getExchange(dataType: Bytes): string {
   if (dataType.toHexString() == V1) {
