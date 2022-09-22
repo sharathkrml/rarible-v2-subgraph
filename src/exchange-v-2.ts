@@ -35,7 +35,36 @@ import {
   calculatedTotal,
 } from "./rarible-helper";
 import { ERC721MetaData } from "../generated/ExchangeV2/ERC721MetaData";
-
+export function getOrCreateTransaction(
+  hash: Bytes,
+  nftAddress: Bytes,
+  nftId: BigInt,
+  from: Bytes,
+  to: Bytes,
+  originFee: BigInt,
+  total: BigInt,
+  paymentTokenAddress: Bytes
+): Transaction {
+  let txnId =
+    hash.toHexString() +
+    "-" +
+    nftAddress.toHexString() +
+    "-" +
+    nftId.toHexString();
+  let entity = Transaction.load(txnId);
+  if (!entity) {
+    entity = new Transaction(txnId);
+  }
+  entity.hash = hash.toHexString();
+  entity.nftAddress = nftAddress;
+  entity.nftId = nftId;
+  entity.from = from;
+  entity.to = to;
+  entity.originFee = originFee;
+  entity.total = total;
+  entity.paymentTokenAddress = paymentTokenAddress;
+  return entity;
+}
 export function handleMatchOrders(call: MatchOrdersCall): void {
   let orderLeft = call.inputs.orderLeft;
   let orderRight = call.inputs.orderRight;
@@ -53,15 +82,20 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     let tx = getOrCreateTransaction(
       call.transaction.hash,
       rightAsset.address,
-      rightAsset.id
+      rightAsset.id,
+      orderRight.maker,
+      orderLeft.maker,
+      getOriginFees(orderLeft.dataType, orderLeft.data),
+      calculatedTotal(
+        orderLeft.makeAsset.value,
+        orderLeft.dataType,
+        orderLeft.data
+      ),
+      leftAsset.address
     );
-    tx.hash = call.transaction.hash.toHexString();
-    tx.from = orderRight.maker;
-    tx.to = orderLeft.maker;
+
     tx.nftSide = "RIGHT";
-    tx.nftAddress = rightAsset.address;
-    tx.nftId = rightAsset.id;
-    tx.paymentTokenAddress = leftAsset.address;
+
     tx.nftValue = orderRight.makeAsset.value;
     tx.nftTakeValue = orderRight.takeAsset.value;
     tx.paymentValue = orderLeft.makeAsset.value;
@@ -71,13 +105,7 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.nftDataLength = BigInt.fromI32(orderRight.data.toHexString().length);
     tx.paymentData = orderLeft.data.toHexString();
     tx.paymentDataLength = BigInt.fromI32(orderLeft.data.toHexString().length);
-    tx.originFee = getOriginFees(orderLeft.dataType, orderLeft.data);
 
-    tx.total = calculatedTotal(
-      orderLeft.makeAsset.value,
-      orderLeft.dataType,
-      orderLeft.data
-    );
     tx.blockHeight = call.block.number;
     tx.exchange = getExchange(orderLeft.dataType);
     tx.save();
@@ -85,15 +113,19 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     let tx = getOrCreateTransaction(
       call.transaction.hash,
       leftAsset.address,
-      leftAsset.id
+      leftAsset.id,
+      orderLeft.maker,
+      orderRight.maker,
+      getOriginFees(orderRight.dataType, orderRight.data),
+      calculatedTotal(
+        orderRight.makeAsset.value,
+        orderRight.dataType,
+        orderRight.data
+      ),
+      rightAsset.address
     );
-    tx.hash = call.transaction.hash.toHexString();
-    tx.from = orderLeft.maker;
-    tx.to = orderRight.maker;
+
     tx.nftSide = "LEFT";
-    tx.nftAddress = leftAsset.address;
-    tx.nftId = leftAsset.id;
-    tx.paymentTokenAddress = rightAsset.address;
     tx.nftValue = orderLeft.makeAsset.value;
     tx.nftTakeValue = orderLeft.takeAsset.value;
     tx.paymentValue = orderRight.makeAsset.value;
@@ -103,16 +135,9 @@ export function handleMatchOrders(call: MatchOrdersCall): void {
     tx.nftDataLength = BigInt.fromI32(orderLeft.data.toHexString().length);
     tx.paymentData = orderRight.data.toHexString();
     tx.paymentDataLength = BigInt.fromI32(orderRight.data.toHexString().length);
-    tx.exchange = getExchange(orderRight.dataType);
 
-    tx.originFee = getOriginFees(orderRight.dataType, orderRight.data);
-
-    tx.total = calculatedTotal(
-      orderRight.makeAsset.value,
-      orderRight.dataType,
-      orderRight.data
-    );
     tx.blockHeight = call.block.number;
+    tx.exchange = getExchange(orderRight.dataType);
 
     tx.save();
   }
@@ -174,49 +199,20 @@ export function handleDirectPurchase(call: DirectPurchaseCall): void {
   tx.save();
 }
 
-export function getOrCreateTransaction(
-  hash: Bytes,
-  nftAddress: Bytes,
-  nftId: BigInt
-): Transaction {
-  let entity = Transaction.load(
-    hash.toHexString() +
-      "-" +
-      nftAddress.toHexString() +
-      "-" +
-      nftId.toHexString()
-  );
-  if (!entity) {
-    entity = new Transaction(
-      hash.toHexString() +
-        "-" +
-        nftAddress.toHexString() +
-        "-" +
-        nftId.toHexString()
-    );
-  }
-  return entity;
-}
 export function getOrCreateDirectTransaction(
   hash: Bytes,
   nftAddress: Bytes,
   nftId: BigInt
 ): DirectTransaction {
-  let entity = DirectTransaction.load(
+  let txnId =
     hash.toHexString() +
-      "-" +
-      nftAddress.toHexString() +
-      "-" +
-      nftId.toHexString()
-  );
+    "-" +
+    nftAddress.toHexString() +
+    "-" +
+    nftId.toHexString();
+  let entity = DirectTransaction.load(txnId);
   if (!entity) {
-    entity = new DirectTransaction(
-      hash.toHexString() +
-        "-" +
-        nftAddress.toHexString() +
-        "-" +
-        nftId.toHexString()
-    );
+    entity = new DirectTransaction(txnId);
   }
   return entity;
 }
